@@ -1,5 +1,6 @@
 package;
 
+import flixel.effects.particles.FlxEmitter;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxG;
@@ -10,8 +11,10 @@ class Player extends FlxSprite
 	public static inline var GRAVITY:Int = 920;
 
 	private var _isJumping:Bool = false;
+	private var _isAlive:Bool = true;
+	private var _gibs:FlxEmitter;
 	
-	public function new()
+	public function new(gibs:FlxEmitter)
 	{
 		super(100, 100);
 		
@@ -28,6 +31,15 @@ class Player extends FlxSprite
 
 		drag.set(RUN_SPEED * 8, RUN_SPEED * 8);
 		maxVelocity.set(RUN_SPEED, 4 * RUN_SPEED);
+
+		// Gibs
+		_gibs = gibs;
+	}
+
+	public function resetPosition():Void
+	{
+		x = 100;
+		y = 100;
 	}
 
 	public function jump():Void
@@ -75,5 +87,18 @@ class Player extends FlxSprite
 
                 
 		super.update();
+	}
+
+	public function hitSpikes()
+	{
+		FlxG.cameras.shake(0.005, 0.35);
+		FlxG.cameras.flash(0xffDB3624, 0.35);
+		
+		FlxG.sound.play("assets/sounds/death.ogg");
+		_isAlive = false;
+		_gibs.at(this);
+		_gibs.start(true, 2.80);
+		// Goodbye
+		resetPosition();
 	}
 }

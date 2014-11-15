@@ -225,7 +225,7 @@ class TiledLevel extends TiledMap
 	{
 		// IMPORTANT: Always collide the map with objects, not the other way around. 
 		//			  This prevents odd collision errors (collision separation code off by 1 px).
-		FlxG.collide(spikeMap, obj, function (obj1:FlxObject, obj2:FlxObject):Bool { obj2.kill(); return true;});
+		FlxG.collide(spikeMap, obj, function (obj1:FlxObject, obj2:FlxObject):Bool { cast(obj2, Player).hitSpikes(); return true;});
 		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);
 	}
 }
