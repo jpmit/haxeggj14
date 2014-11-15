@@ -14,9 +14,9 @@ class Player extends FlxSprite
 	private var _isAlive:Bool = true;
 	private var _gibs:FlxEmitter;
 	
-	public function new(gibs:FlxEmitter)
+	public function new(x:Int, y:Int, gibs:FlxEmitter)
 	{
-		super(100, 100);
+		super(x, y);
 		
 		loadGraphic("assets/images/player.png", true, 50, 59);
 

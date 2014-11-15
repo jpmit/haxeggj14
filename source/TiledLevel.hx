@@ -35,7 +35,7 @@ class TiledLevel extends TiledMap
 	private var mape2:FlxTilemap;
 	private var spikeMap:FlxTilemap;
 	// The current map being used for collisions
-	private var collideMap:FlxTilemap;
+	public var collideMap:FlxTilemap;
 	// Either 1 or 2
 	private var currentNum:Int;
 	
@@ -50,6 +50,7 @@ class TiledLevel extends TiledMap
 
 		// Assume 1 layer for now (the main layer)
 		var tileLayer = layers[0];
+
 		// Create 5 tilemaps from the tiled layer: 1 solid for each of the two
 		// colors, 1 'edge' for each of the two colors, and one spike
 		var ts1 = new Array<Int>();
@@ -182,8 +183,20 @@ class TiledLevel extends TiledMap
 	{
 		var x:Int = o.x;
 		var y:Int = o.y;
+
+		//trace(x, y);
+		//trace(o.name.toLowerCase());
 		
 		// objects in tiled are aligned bottom-left (top-left in flixel)
+
+		switch (o.name)
+		{
+			case "goal":
+				state.addGoal(x, y);
+			case "player":
+				state.addPlayer(x, y);
+		}
+		
 		/*
 		if (o.gid != -1)
 			y -= g.map.getGidOwner(o.gid).tileHeight;

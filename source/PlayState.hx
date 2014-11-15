@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.text.FlxText;
@@ -13,6 +14,7 @@ import flixel.effects.particles.FlxEmitter;
 class PlayState extends FlxState
 {
 	public var player:Player;
+	public var goal:Goal;
 	private var level:TiledLevel;
 	private var background:FlxBackdrop;
 	private var mainCamera:FlxCamera;
@@ -33,11 +35,11 @@ class PlayState extends FlxState
 
 		add(gibs);
 
-		add(player = new Player(gibs));
-
 		level = new TiledLevel("assets/tiled/l1full.tmx");
 		add(level.drawTiles1);
-		add(level.drawTiles2);		
+		add(level.drawTiles2);
+		// This will load goal and player
+		level.loadObjects(this);
 
 		mainCamera = new FlxCamera(0, 0, 1000, 600);
 		mainCamera.setBounds(0, 0, 1500, 450);
@@ -49,10 +51,29 @@ class PlayState extends FlxState
 
 		super.create();
 	}
+
+	public function addPlayer(x:Int, y:Int)
+	{
+		player = new Player(x, y, gibs);
+		add(player);
+	}
+
+	public function addGoal(x:Int, y:Int)
+	{
+		goal = new Goal(x, y);
+		add(goal);
+	}
 	
   	override public function destroy():Void
 	{
 		super.destroy();
+	}
+
+	public function reachedGoal(obj1:FlxObject, obj2:FlxObject):Bool
+	{
+		// Go to next level
+		trace("reached goal!");
+		return true;
 	}
 
 	override public function update():Void
@@ -65,5 +86,7 @@ class PlayState extends FlxState
 			level.switchTiles();
 		}
 		level.collideWithLevel(player);
+		FlxG.collide(goal, player, reachedGoal);
+		//FlxG.collide(gibs, level.collideMap);
 	}
 }
