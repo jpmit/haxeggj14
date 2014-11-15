@@ -12,7 +12,7 @@ import flixel.addons.display.FlxBackdrop;
 class PlayState extends FlxState
 {
 	public var player:Player;
-	public var level:TiledLevel;
+	private var level:TiledLevel;
 	private var background:FlxBackdrop;
 	private var mainCamera:FlxCamera;
 
@@ -24,12 +24,14 @@ class PlayState extends FlxState
 
 		add(player = new Player());
 
-		level = new TiledLevel("assets/tiled/l1.tmx");
-		add(level.foregroundTiles);
+		level = new TiledLevel("assets/tiled/l1full.tmx");
+		add(level.drawTiles1);
+		add(level.drawTiles2);		
 
 		mainCamera = new FlxCamera(0, 0, 1000, 600);
 		mainCamera.setBounds(0, 0, 1500, 450);
-		mainCamera.follow(player);
+		// The number is how much to lag the camera
+		mainCamera.follow(player, 1);
 		FlxG.cameras.add(mainCamera);
 
 		FlxG.sound.playMusic("assets/music/main.ogg");
@@ -45,6 +47,12 @@ class PlayState extends FlxState
 	override public function update():Void
 	{
 		super.update();
+
+		if (FlxG.keys.justPressed.X)
+		{
+			FlxG.sound.play("assets/sounds/click.ogg");
+			level.switchTiles();
+		}
 		level.collideWithLevel(player);
-	}	
+	}
 }

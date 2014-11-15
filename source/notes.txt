@@ -1,0 +1,3 @@
+main loop:
+see /usr/share/haxe/lib/flixel/.../FlxGame.hx, method onEnterFrame
+

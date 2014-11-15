@@ -22,62 +22,148 @@ class TiledLevel extends TiledMap
 	// For each "Tile Layer" in the map, you must define a "tileset" property which contains the name of a tile sheet image 
 	// used to draw tiles in that layer (without file extension). The image file must be located in the directory specified bellow.
 	private inline static var c_PATH_LEVEL_TILESHEETS = "assets/tiled/";
-	
-	// Array of tilemaps used for collision
-	public var foregroundTiles:FlxGroup;
-	public var backgroundTiles:FlxGroup;
+
+	// First tiles to be drawn
+	public var drawTiles1:FlxGroup;
+	public var drawTiles2:FlxGroup;
+	// Tilemap used for collision
 	private var collidableTileLayers:Array<FlxTilemap>;
+	// Five FlxTilemaps, two for each solid color, and one for spikes
+	private var maps1:FlxTilemap;
+	private var maps2:FlxTilemap;
+	private var mape1:FlxTilemap;
+	private var mape2:FlxTilemap;
+	private var spikeMap:FlxTilemap;
+	// The current map being used for collisions
+	private var collideMap:FlxTilemap;
+	// Either 1 or 2
+	private var currentNum:Int;
 	
 	public function new(tiledLevel:Dynamic)
 	{
 		super(tiledLevel);
 		
-		foregroundTiles = new FlxGroup();
-		backgroundTiles = new FlxGroup();
+		drawTiles1 = new FlxGroup();
+		drawTiles2 = new FlxGroup();
 		
 		FlxG.camera.setBounds(0, 0, fullWidth, fullHeight, true);
-		
-		// Load Tile Maps
-		for (tileLayer in layers)
+
+		// Assume 1 layer for now (the main layer)
+		var tileLayer = layers[0];
+		// Create 5 tilemaps from the tiled layer: 1 solid for each of the two
+		// colors, 1 'edge' for each of the two colors, and one spike
+		var ts1 = new Array<Int>();
+		var te1 = new Array<Int>();
+		var ts2 = new Array<Int>();
+		var te2 = new Array<Int>();
+		var spikes = new Array<Int>();
+		for (i in tileLayer.tileArray)
 		{
-			var tileSheetName:String = tileLayer.properties.get("tileset");
-			
-			if (tileSheetName == null)
-				throw "'tileset' property not defined for the '" + tileLayer.name + "' layer. Please add the property to the layer.";
-				
-			var tileSet:TiledTileSet = null;
-			for (ts in tilesets)
+			switch(i)
 			{
-				if (ts.name == tileSheetName)
-				{
-					tileSet = ts;
-					break;
-				}
+				case 0: // Blank
+					ts1.push(i);
+					te1.push(i);
+					ts2.push(i);
+					te2.push(i);
+					spikes.push(0);
+				case 1: // Spike
+					ts1.push(0);
+					te1.push(0);
+					ts2.push(0);
+					te2.push(0);
+					spikes.push(i);
+				case 2: // Solid White
+					ts1.push(i);
+					te1.push(5);
+					ts2.push(0);
+					te2.push(0);
+					spikes.push(0);					
+				case 3: // Solid Black
+					ts1.push(0);
+					te1.push(0);
+					ts2.push(i);
+					te2.push(6);
+					spikes.push(0);					
+				case 4: // Both
+					ts1.push(2);
+					te1.push(5);
+					ts2.push(3);
+					te2.push(6);
+					spikes.push(0);					
 			}
+		}
+		
+		var tileSheetName:String = tileLayer.properties.get("tileset");
 			
-			if (tileSet == null)
-				throw "Tileset '" + tileSheetName + " not found. Did you mispell the 'tilesheet' property in " + tileLayer.name + "' layer?";
+		if (tileSheetName == null)
+			throw "'tileset' property not defined for the '" + tileLayer.name + "' layer. Please add the property to the layer.";
 				
-			var imagePath 		= new Path(tileSet.imageSource);
-			var processedPath 	= c_PATH_LEVEL_TILESHEETS + imagePath.file + "." + imagePath.ext;
+		var tileSet:TiledTileSet = null;
+		for (ts in tilesets)
+		{
+			if (ts.name == tileSheetName)
+			{
+				tileSet = ts;
+				break;
+			}
+		}
 			
+		if (tileSet == null)
+			throw "Tileset '" + tileSheetName + " not found. Did you mispell the 'tilesheet' property in " + tileLayer.name + "' layer?";
+				
+		var imagePath 		= new Path(tileSet.imageSource);
+		var processedPath 	= c_PATH_LEVEL_TILESHEETS + imagePath.file + "." + imagePath.ext;
+
+		for (tArray in [ts1, te1, ts2, te2, spikes])
+		{
 			var tilemap:FlxTilemap = new FlxTilemap();
 			tilemap.widthInTiles = width;
 			tilemap.heightInTiles = height;
-			tilemap.loadMap(tileLayer.tileArray, processedPath, tileSet.tileWidth, tileSet.tileHeight, 0, 1, 1, 1);
-			
-			if (tileLayer.properties.contains("nocollide"))
+			tilemap.loadMap(tArray, processedPath, tileSet.tileWidth, tileSet.tileHeight, 0, 1, 1, 1);
+			if (tArray == te1)
 			{
-				backgroundTiles.add(tilemap);
+				mape1 = tilemap;
 			}
-			else
+			else if (tArray == te2)
 			{
-				if (collidableTileLayers == null)
-					collidableTileLayers = new Array<FlxTilemap>();
-				
-				foregroundTiles.add(tilemap);
-				collidableTileLayers.push(tilemap);
+				mape2 = tilemap;
 			}
+			else if (tArray == ts1)
+			{
+				maps1 = tilemap;
+			}
+			else if (tArray == ts2)
+			{
+				maps2 = tilemap;
+			}
+			else if (tArray == spikes)
+			{
+				spikeMap = tilemap;
+			}
+		}
+		currentNum = 2;
+		switchTiles();
+	}
+
+	public function switchTiles()
+	{
+		drawTiles1.clear();
+		drawTiles2.clear();
+		drawTiles1.add(spikeMap);
+		if (currentNum == 1)
+		{
+			currentNum = 2;
+			collideMap = maps2;
+			drawTiles1.add(maps2);
+			drawTiles2.add(mape1);
+		}
+		else
+		{
+			currentNum = 1;
+			collideMap = maps1;
+			drawTiles1.add(maps1);
+			drawTiles2.add(mape2);
 		}
 	}
 	
@@ -137,15 +223,9 @@ class TiledLevel extends TiledMap
 	
 	public function collideWithLevel(obj:FlxObject, ?notifyCallback:FlxObject->FlxObject->Void, ?processCallback:FlxObject->FlxObject->Bool):Bool
 	{
-		if (collidableTileLayers != null)
-		{
-			for (map in collidableTileLayers)
-			{
-				// IMPORTANT: Always collide the map with objects, not the other way around. 
-				//			  This prevents odd collision errors (collision separation code off by 1 px).
-				return FlxG.overlap(map, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);
-			}
-		}
-		return false;
+		// IMPORTANT: Always collide the map with objects, not the other way around. 
+		//			  This prevents odd collision errors (collision separation code off by 1 px).
+		FlxG.collide(spikeMap, obj, function (obj1:FlxObject, obj2:FlxObject):Bool { obj2.kill(); return true;});
+		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);
 	}
 }
