@@ -233,12 +233,23 @@ class TiledLevel extends TiledMap
 		}
 		*/
 	}
+
+	public function playerCollideCallback(obj1:FlxObject, obj2:FlxObject):Bool
+	{
+		FlxObject.separateX(obj1, obj2);
+		// Need to replace this with something that lets the player 'whoosh' upwards
+		trace(obj1.type);
+		FlxObject.separateY(obj1, obj2);		
+		//obj2.y = obj1.y;
+		return true;
+	}
 	
 	public function collideWithLevel(obj:FlxObject, ?notifyCallback:FlxObject->FlxObject->Void, ?processCallback:FlxObject->FlxObject->Bool):Bool
 	{
 		// IMPORTANT: Always collide the map with objects, not the other way around. 
 		//			  This prevents odd collision errors (collision separation code off by 1 px).
 		FlxG.collide(spikeMap, obj, function (obj1:FlxObject, obj2:FlxObject):Bool { cast(obj2, Player).hitSpikes(); return true;});
-		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);
+		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : playerCollideCallback);
+		//return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);		
 	}
 }

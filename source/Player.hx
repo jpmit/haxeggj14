@@ -13,10 +13,16 @@ class Player extends FlxSprite
 	private var _isJumping:Bool = false;
 	private var _isAlive:Bool = true;
 	private var _gibs:FlxEmitter;
+	private var _startX:Int;
+	private var _startY:Int;
 	
 	public function new(x:Int, y:Int, gibs:FlxEmitter)
 	{
+		
 		super(x, y);
+
+		_startX = x;
+		_startY = y;
 		
 		loadGraphic("assets/images/player.png", true, 50, 59);
 
@@ -29,6 +35,9 @@ class Player extends FlxSprite
 		setSize(30, 39);
 		offset.set(10, 20);
 
+		// Face right
+		flipX = true;
+
 		drag.set(RUN_SPEED * 8, RUN_SPEED * 8);
 		maxVelocity.set(RUN_SPEED, 4 * RUN_SPEED);
 
@@ -38,8 +47,8 @@ class Player extends FlxSprite
 
 	public function resetPosition():Void
 	{
-		x = 100;
-		y = 100;
+		x = _startX;
+		y = _startY;
 	}
 
 	public function jump():Void

@@ -11,6 +11,7 @@ import flixel.util.FlxMath;
 import flixel.addons.display.FlxBackdrop;
 import flixel.effects.particles.FlxEmitter;
 
+
 class PlayState extends FlxState
 {
 	public var player:Player;
@@ -19,6 +20,20 @@ class PlayState extends FlxState
 	private var background:FlxBackdrop;
 	private var mainCamera:FlxCamera;
 	private var gibs:FlxEmitter;
+	private var _lnum:Int;
+	private var _ltxt:FlxText;
+
+	override public function new(lnum:Int):Void
+	{
+		_lnum = lnum;
+		trace(Data.levelNames[lnum]);
+		super();
+	}
+
+	public function getLevelNum():Int
+	{
+		return _lnum;
+	}
 
 	override public function create():Void
 	{
@@ -35,7 +50,12 @@ class PlayState extends FlxState
 
 		add(gibs);
 
-		level = new TiledLevel("assets/tiled/l1full.tmx");
+		_ltxt = new FlxText(400, 30, _lnum + ": " + Data.levelNames[_lnum], 15);
+		_ltxt.scrollFactor.set(0, 0);
+
+		add(_ltxt);
+
+		level = new TiledLevel("assets/tiled/l" + _lnum + "full.tmx");
 		add(level.drawTiles1);
 		add(level.drawTiles2);
 		// This will load goal and player
@@ -47,7 +67,10 @@ class PlayState extends FlxState
 		mainCamera.follow(player, 1);
 		FlxG.cameras.add(mainCamera);
 
-		FlxG.sound.playMusic("assets/music/main.ogg");
+		if (_lnum == 1)
+		{
+			FlxG.sound.playMusic("assets/music/main.ogg");
+		}
 
 		super.create();
 	}
@@ -73,6 +96,9 @@ class PlayState extends FlxState
 	{
 		// Go to next level
 		trace("reached goal!");
+		FlxG.sound.play("assets/sounds/goal.ogg");
+		this.subState = new LevelCompleteState(this, player);
+		//player.kill();
 		return true;
 	}
 
