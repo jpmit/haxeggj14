@@ -1,3 +1,9 @@
 main loop:
 see /usr/share/haxe/lib/flixel/.../FlxGame.hx, method onEnterFrame
 
+collisions with tile:
+seems like the collide callback is called every time a collision is checked.
+separateX and separateY in FlxObject then do the actual collisions with the tilemap!
+These call the overlapsWithCallback function in FlxTilemap.hx
+**Try registering a callback function with each tile
+

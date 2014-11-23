@@ -234,12 +234,31 @@ class TiledLevel extends TiledMap
 		*/
 	}
 
+	private function upY(obj1:FlxObject, obj2:FlxObject):Bool
+	{
+		// obj2 is Player
+		if (obj2.y > obj1.y - obj2.height)
+		{
+			//			trace(obj1.touching);
+			obj2.y = obj1.y - obj2.height;
+			obj2.touching = FlxObject.FLOOR;
+			trace(obj1.x, obj2.x, obj1.y, obj2.y);
+			return true;
+		}
+		return false;
+	}
+
 	public function playerCollideCallback(obj1:FlxObject, obj2:FlxObject):Bool
 	{
 		FlxObject.separateX(obj1, obj2);
+
 		// Need to replace this with something that lets the player 'whoosh' upwards
 		//trace(obj1.type);
-		FlxObject.separateY(obj1, obj2);		
+		//FlxObject.separateY(obj1, obj2);
+		//trace(cast(obj1, FlxTilemap).widthInTiles);
+		//trace(obj1.y);
+		cast(obj1, FlxTilemap).overlapsWithCallback(obj2, upY);
+		//obj2.y = 100;
 		//obj2.y = obj1.y;
 		return true;
 	}
