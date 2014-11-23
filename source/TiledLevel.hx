@@ -238,7 +238,7 @@ class TiledLevel extends TiledMap
 	{
 		FlxObject.separateX(obj1, obj2);
 		// Need to replace this with something that lets the player 'whoosh' upwards
-		trace(obj1.type);
+		//trace(obj1.type);
 		FlxObject.separateY(obj1, obj2);		
 		//obj2.y = obj1.y;
 		return true;

@@ -6,6 +6,7 @@ import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.ui.FlxButton;
+import flixel.util.FlxColor;
 import flixel.util.FlxMath;
 import flixel.util.FlxTimer;
 import flixel.addons.display.FlxBackdrop;
@@ -23,12 +24,16 @@ class MenuState extends FlxState
 	{
 		FlxG.mouse.visible = false;
 		_background = new FlxBackdrop("assets/images/bg.png");
-		_txtMain = new FlxText(200, 200, "Two Levels", 30);
-		_txtPress = new FlxText(250, 300, "Press space to start", 20);
+		_txtMain = new FlxText(100, 200, "Two Levels");
+		_txtMain.setFormat("assets/fonts/ShareTechMono-Regular.ttf", 100);
+		   
+		_txtPress = new FlxText(250, 350, "Press space to start");
+		_txtPress.setFormat("assets/fonts/ShareTechMono-Regular.ttf", 30);
 		FlxTween.tween(_txtPress, { alpha: 0}, 0.1, { type:FlxTween.PINGPONG, loopDelay: 0.5 });
+		
 		add(_background);
-		add(_txtMain);
-		add(_txtPress);
+		Util.addCenteredText(this, _txtMain);
+		Util.addCenteredText(this, _txtPress);
 		FlxG.sound.playMusic("assets/music/menu.ogg");		
 		super.create();
 	}

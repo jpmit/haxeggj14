@@ -51,9 +51,10 @@ class PlayState extends FlxState
 		add(gibs);
 
 		_ltxt = new FlxText(400, 30, _lnum + ": " + Data.levelNames[_lnum], 15);
+		_ltxt.setFormat("assets/fonts/ShareTechMono-Regular.ttf", 20);
 		_ltxt.scrollFactor.set(0, 0);
 
-		add(_ltxt);
+		Util.addCenteredText(this, _ltxt);
 
 		level = new TiledLevel("assets/tiled/l" + _lnum + "full.tmx");
 		add(level.drawTiles1);

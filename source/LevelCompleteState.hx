@@ -30,7 +30,7 @@ class LevelCompleteState extends FlxSubState
 	override public function update():Void
 	{
 		_elapsed += FlxG.elapsed;
-		_player.scale.set(10 * Math.exp(-_elapsed), 10 * Math.exp(-_elapsed));
+		_player.scale.set(100 * Math.exp(-8 * _elapsed), 100 * Math.exp(-8 * _elapsed));
 		_player.angle -= FlxG.elapsed * 1800.0 * _elapsed;//Std.random(100);
 
 		super.update();
