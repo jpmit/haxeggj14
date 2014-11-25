@@ -237,7 +237,7 @@ class TiledLevel extends TiledMap
 	private function upY(obj1:FlxObject, obj2:FlxObject):Bool
 	{
 		// obj2 is Player
-		if (obj2.y > obj1.y - obj2.height)
+		if (obj2.y + obj2.height > obj1.y && obj2.x + obj2.width > obj1.x)
 		{
 			//			trace(obj1.touching);
 			obj2.y = obj1.y - obj2.height;
