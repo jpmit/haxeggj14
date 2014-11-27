@@ -15,31 +15,37 @@ class LevelCompleteState extends FlxSubState
 		_player = player;
 		// Total time elapsed in this substate
 		_elapsed = 0;
-		closeCallback = this.resetPlayer;
+		closeCallback = this.nextLevel;
 		super();
 	}
 
-	public function resetPlayer():Void
+	public function nextLevel():Void
 	{
-		trace('closing callback!');
-		_player.scale.set(1, 1);
-		//_player.angle = 0;
-		FlxG.switchState(new PlayState(cast(_parentState, PlayState).getLevelNum() + 1));
+		var currentLevelNum = cast(_parentState, PlayState).getLevelNum();
+		trace(Reg.nLevels);
+		if (currentLevelNum == Reg.nLevels)
+		{
+			FlxG.switchState(new GameCompleteState());
+		}
+		else
+		{
+			FlxG.switchState(new PlayState(cast(_parentState, PlayState).getLevelNum() + 1));
+		}
 	}
 
 	override public function update():Void
 	{
 		_elapsed += FlxG.elapsed;
 		_player.scale.set(100 * Math.exp(-8 * _elapsed), 100 * Math.exp(-8 * _elapsed));
-		_player.angle -= FlxG.elapsed * 1800.0 * _elapsed;//Std.random(100);
+		_player.angle -= FlxG.elapsed * 1800.0 * _elapsed;
 
 		super.update();
 
 		if (_elapsed > 2)
 		{
-			// Not sure why this isn't being called by the callback
-			resetPlayer();
 			close();
+			// Not sure why this isn't being called by the callback
+			nextLevel();
 		}
 	}
 }

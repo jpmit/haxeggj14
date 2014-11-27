@@ -7,22 +7,22 @@ import flixel.FlxG;
 
 class Player extends FlxSprite
 {
-	public static inline var RUN_SPEED:Int = 300;
-	public static inline var GRAVITY:Int = 920;
+	public static inline var RUN_SPEED:Int = 500;
+	public static inline var GRAVITY:Int = 2500;//920;
 
 	private var _isJumping:Bool = false;
-	private var _isAlive:Bool = true;
-	private var _gibs:FlxEmitter;
 	private var _startX:Int;
 	private var _startY:Int;
 	
-	public function new(x:Int, y:Int, gibs:FlxEmitter)
+	public function new(x:Int, y:Int)
 	{
 		
 		super(x, y);
 
 		_startX = x;
 		_startY = y;
+		trace(x, _startX);
+		
 		
 		loadGraphic("assets/images/player.png", true, 50, 59);
 
@@ -35,20 +35,28 @@ class Player extends FlxSprite
 		setSize(30, 39);
 		offset.set(10, 20);
 
-		// Face right
-		flipX = true;
+		drag.set(RUN_SPEED * 10, RUN_SPEED * 10);
+		maxVelocity.set(RUN_SPEED, 3 * RUN_SPEED);
 
-		drag.set(RUN_SPEED * 8, RUN_SPEED * 8);
-		maxVelocity.set(RUN_SPEED, 4 * RUN_SPEED);
-
-		// Gibs
-		_gibs = gibs;
+		resetToLevelStart();
 	}
 
-	public function resetPosition():Void
+	public function resetToLevelStart():Void
 	{
+		trace(x, _startX, y, _startY);
 		x = _startX;
 		y = _startY;
+		// Seems like flixel's collision system will be confused if we don't
+		// reset last position as well.
+		last.x = x;
+		last.y = y;
+		velocity.x = 0;
+		velocity.y = 0;
+		acceleration.x = 0;
+		acceleration.y = 0;
+
+		// Face right
+		flipX = true;
 	}
 
 	public function jump():Void
@@ -96,18 +104,5 @@ class Player extends FlxSprite
 
                 
 		super.update();
-	}
-
-	public function hitSpikes()
-	{
-		FlxG.cameras.shake(0.005, 0.35);
-		FlxG.cameras.flash(0xffDB3624, 0.35);
-		
-		FlxG.sound.play("assets/sounds/death.ogg");
-		_isAlive = false;
-		_gibs.at(this);
-		_gibs.start(true, 2.80);
-		// Goodbye
-		resetPosition();
 	}
 }

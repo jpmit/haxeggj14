@@ -38,6 +38,8 @@ class TiledLevel extends TiledMap
 	public var collideMap:FlxTilemap;
 	// Either 1 or 2
 	private var currentNum:Int;
+	// Keep track of whether we switched tiles on the last frame
+	private var _justSwitched:Bool;
 	
 	public function new(tiledLevel:Dynamic)
 	{
@@ -47,6 +49,8 @@ class TiledLevel extends TiledMap
 		drawTiles2 = new FlxGroup();
 		
 		FlxG.camera.setBounds(0, 0, fullWidth, fullHeight, true);
+
+		_justSwitched = false;
 
 		// Assume 1 layer for now (the main layer)
 		var tileLayer = layers[0];
@@ -147,8 +151,17 @@ class TiledLevel extends TiledMap
 		switchTiles();
 	}
 
+	public function reset()
+	{
+		if (currentNum == 2)
+		{
+			switchTiles();
+		}
+	}
+
 	public function switchTiles()
 	{
+		_justSwitched = true;
 		drawTiles1.clear();
 		drawTiles2.clear();
 		drawTiles1.add(spikeMap);
@@ -239,36 +252,59 @@ class TiledLevel extends TiledMap
 		// obj2 is Player
 		if (obj2.y + obj2.height > obj1.y && obj2.x + obj2.width > obj1.x)
 		{
-			//			trace(obj1.touching);
+			// Whoosh upwards
 			obj2.y = obj1.y - obj2.height;
 			obj2.touching = FlxObject.FLOOR;
-			trace(obj1.x, obj2.x, obj1.y, obj2.y);
+			// Mimic FlxObject.separateY
+			obj2.velocity.y = obj1.velocity.y - obj2.velocity.y * obj2.elasticity;
 			return true;
 		}
 		return false;
 	}
 
-	public function playerCollideCallback(obj1:FlxObject, obj2:FlxObject):Bool
+	public function dontSwitchTiles():Void
 	{
-		FlxObject.separateX(obj1, obj2);
+		_justSwitched = false;
+	}
 
-		// Need to replace this with something that lets the player 'whoosh' upwards
-		//trace(obj1.type);
-		//FlxObject.separateY(obj1, obj2);
-		//trace(cast(obj1, FlxTilemap).widthInTiles);
-		//trace(obj1.y);
-		cast(obj1, FlxTilemap).overlapsWithCallback(obj2, upY);
-		//obj2.y = 100;
-		//obj2.y = obj1.y;
-		return true;
+	public function wallCollideCallback(obj1:FlxObject, obj2:FlxObject):Bool
+	{
+		var separatedX:Bool = FlxObject.separateX(obj1, obj2);
+		var separatedY:Bool;
+
+		if (_justSwitched)
+	    {
+			// Allow 'whooshing' upwards
+			separatedY = cast(obj1, FlxTilemap).overlapsWithCallback(obj2, upY);
+			if (separatedY)
+			{
+				// Keep whooshing upwards
+				FlxG.overlap(collideMap, obj2, null, wallCollideCallback);
+			}
+		}
+		else
+		{
+			separatedY = FlxObject.separateY(obj1, obj2);
+		}
+				
+		return separatedX || separatedY;
+	}
+
+	public function spikeCollideCallback(obj1:FlxObject, obj2:FlxObject):Bool
+	{
+		if (obj2.isTouching(FlxObject.FLOOR))
+		{
+			cast(FlxG.state, PlayState).playerDied();
+			return true;
+		}
+		return false;
 	}
 	
 	public function collideWithLevel(obj:FlxObject, ?notifyCallback:FlxObject->FlxObject->Void, ?processCallback:FlxObject->FlxObject->Bool):Bool
 	{
 		// IMPORTANT: Always collide the map with objects, not the other way around. 
 		//			  This prevents odd collision errors (collision separation code off by 1 px).
-		FlxG.collide(spikeMap, obj, function (obj1:FlxObject, obj2:FlxObject):Bool { cast(obj2, Player).hitSpikes(); return true;});
-		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : playerCollideCallback);
-		//return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : FlxObject.separate);		
+		FlxG.overlap(spikeMap, obj, spikeCollideCallback, FlxObject.separate);
+		return FlxG.overlap(collideMap, obj, notifyCallback, processCallback != null ? processCallback : wallCollideCallback);
 	}
 }
