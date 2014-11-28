@@ -48,6 +48,7 @@ class Tutorial
                ["Why I called you kid", "9.5", "11"]
 		      ]
 		];
+	// Position of top left corner of tutorial text
 	private static var _tposx = 580;
 	private static var _tposy = 150;
 	

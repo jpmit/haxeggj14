@@ -5,6 +5,7 @@ import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.addons.display.FlxBackdrop;
 
+// Override update of player class so we don't apply gravity etc.
 class NoUpdatePlayer extends Player
 {
 	public override function update():Void

@@ -11,14 +11,13 @@ import flixel.util.FlxMath;
 import flixel.addons.display.FlxBackdrop;
 import flixel.effects.particles.FlxEmitter;
 
-
 class PlayState extends FlxState
 {
-	public var player:Player;
-	public var goal:Goal;
-	private var level:TiledLevel;
-	private var background:FlxBackdrop;
-	private var mainCamera:FlxCamera;
+	private var _player:Player;
+	private var _goal:Goal;
+	private var _level:TiledLevel;
+	private var _background:FlxBackdrop;
+	private var _mainCamera:FlxCamera;
 	private var _gibs:FlxEmitter;
 	private var _lnum:Int;
 	private var _ltxt:FlxText;
@@ -49,7 +48,7 @@ class PlayState extends FlxState
 		_ltxt.setFormat("assets/fonts/ShareTechMono-Regular.ttf", 20);
 		_ltxt.scrollFactor.set(0, 0);
 
-		level = new TiledLevel("assets/tiled/l" + _lnum + "full.tmx");
+		_level = new TiledLevel("assets/tiled/l" + _lnum + "full.tmx");
 
 		if (_lnum == 1)
 		{
@@ -57,19 +56,19 @@ class PlayState extends FlxState
 		}
 
 		// Add sprites in correct order
-		add(background = new FlxBackdrop("assets/images/bg.png"));
-		add(level.drawTiles1);
-		add(level.drawTiles2);
+		add(_background = new FlxBackdrop("assets/images/bg.png"));
+		add(_level.drawTiles1);
+		add(_level.drawTiles2);
 		// This will add goal and player
-		level.loadObjects(this);
+		_level.loadObjects(this);
 		add(_gibs);
 		Util.addCenteredText(this, _ltxt);
 
-		mainCamera = new FlxCamera(0, 0, 1000, 600);
-		mainCamera.setBounds(0, 0, level.width * level.tileWidth, level.height * level.tileHeight);
+		_mainCamera = new FlxCamera(0, 0, 1000, 600);
+		_mainCamera.setBounds(0, 0, _level.width * _level.tileWidth, _level.height * _level.tileHeight);
 		// The number is how much to lag the camera
-		mainCamera.follow(player, 1);
-		FlxG.cameras.add(mainCamera);
+		_mainCamera.follow(_player, 1);
+		FlxG.cameras.add(_mainCamera);
 
 		// Tutorial (text in top right)
 		Tutorial.setup(this, _lnum);
@@ -79,14 +78,14 @@ class PlayState extends FlxState
 
 	public function addPlayer(x:Int, y:Int)
 	{
-		player = new Player(x, y);
-		add(player);
+		_player = new Player(x, y);
+		add(_player);
 	}
 
 	public function addGoal(x:Int, y:Int)
 	{
-		goal = new Goal(x, y);
-		add(goal);
+		_goal = new Goal(x, y);
+		add(_goal);
 	}
 	
   	override public function destroy():Void
@@ -97,9 +96,8 @@ class PlayState extends FlxState
 	public function reachedGoal(obj1:FlxObject, obj2:FlxObject):Bool
 	{
 		// Go to next level
-		trace("reached goal!");
 		FlxG.sound.play("assets/sounds/goal.ogg");
-		this.subState = new LevelCompleteState(this, player);
+		this.subState = new LevelCompleteState(this, _player);
 		return true;
 	}
 
@@ -109,15 +107,15 @@ class PlayState extends FlxState
 		FlxG.cameras.flash(0xffDB3624, 0.35);
 		FlxG.sound.play("assets/sounds/death.ogg");
 
-	    _gibs.at(player);
+	    _gibs.at(_player);
 		_gibs.start(true, 2.80);
 
 		Reg.nDeaths += 1;
 
 		// Reset player position etc.
-		player.resetToLevelStart();
+		_player.resetToLevelStart();
 		// Make sure white tiles are selected
-		level.reset();
+		_level.reset();
 	}
 
 	override public function update():Void
@@ -127,18 +125,19 @@ class PlayState extends FlxState
 		if (FlxG.keys.justPressed.X)
 		{
 			FlxG.sound.play("assets/sounds/click.ogg");
-			level.switchTiles();
+			_level.switchTiles();
 		}
 		else
 		{
-			level.dontSwitchTiles();
+			// This will set a flag which is needed for collision handling
+			_level.dontSwitchTiles();
 		}
 		
-		level.collideWithLevel(player);
-		FlxG.collide(goal, player, reachedGoal);
+		_level.collideWithLevel(_player);
+		FlxG.collide(_goal, _player, reachedGoal);
 
-		if ((player.x + player.width > level.fullWidth) || (player.x < 0)
-		|| (player.y + player.height > level.fullHeight) || (player.y < 0))
+		if ((_player.x + _player.width > _level.fullWidth) || (_player.x < 0)
+		|| (_player.y + _player.height > _level.fullHeight) || (_player.y < 0))
 		{
 			playerDied();
 		}
