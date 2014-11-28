@@ -8,7 +8,7 @@ import flixel.FlxG;
 class Player extends FlxSprite
 {
 	public static inline var RUN_SPEED:Int = 500;
-	public static inline var GRAVITY:Int = 2500;//920;
+	public static inline var GRAVITY:Int = 2500;
 
 	private var _isJumping:Bool = false;
 	private var _startX:Int;
@@ -21,8 +21,6 @@ class Player extends FlxSprite
 
 		_startX = x;
 		_startY = y;
-		trace(x, _startX);
-		
 		
 		loadGraphic("assets/images/player.png", true, 50, 59);
 
@@ -43,7 +41,6 @@ class Player extends FlxSprite
 
 	public function resetToLevelStart():Void
 	{
-		trace(x, _startX, y, _startY);
 		x = _startX;
 		y = _startY;
 		// Seems like flixel's collision system will be confused if we don't
@@ -63,7 +60,6 @@ class Player extends FlxSprite
 	{
 		if (FlxG.keys.justPressed.SPACE)
 		{
-			trace("pressed space");
 			FlxG.sound.play("assets/sounds/jump.ogg");
 			this.velocity.y = -this.maxVelocity.y / 2;
 		}

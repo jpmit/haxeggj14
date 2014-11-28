@@ -22,7 +22,6 @@ class LevelCompleteState extends FlxSubState
 	public function nextLevel():Void
 	{
 		var currentLevelNum = cast(_parentState, PlayState).getLevelNum();
-		trace(Reg.nLevels);
 		if (currentLevelNum == Reg.nLevels)
 		{
 			FlxG.switchState(new GameCompleteState());
