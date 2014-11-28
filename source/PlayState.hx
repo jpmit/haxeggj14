@@ -60,7 +60,7 @@ class PlayState extends FlxState
 		add(background = new FlxBackdrop("assets/images/bg.png"));
 		add(level.drawTiles1);
 		add(level.drawTiles2);
-		// This will load goal and player
+		// This will add goal and player
 		level.loadObjects(this);
 		add(_gibs);
 		Util.addCenteredText(this, _ltxt);
@@ -70,6 +70,9 @@ class PlayState extends FlxState
 		// The number is how much to lag the camera
 		mainCamera.follow(player, 1);
 		FlxG.cameras.add(mainCamera);
+
+		// Tutorial (text in top right)
+		Tutorial.setup(this, _lnum);
 
 		super.create();
 	}
@@ -102,8 +105,6 @@ class PlayState extends FlxState
 
 	public function playerDied():Void
 	{
-		trace('died!');
-		
 		FlxG.cameras.shake(0.005, 0.35);
 		FlxG.cameras.flash(0xffDB3624, 0.35);
 		FlxG.sound.play("assets/sounds/death.ogg");
