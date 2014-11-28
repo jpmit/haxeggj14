@@ -8,7 +8,7 @@ import flixel.FlxG;
 class Player extends FlxSprite
 {
 	public static inline var RUN_SPEED:Int = 500;
-	public static inline var GRAVITY:Int = 2500;
+	public static inline var GRAVITY:Int = 7000;
 
 	private var _isJumping:Bool = false;
 	private var _startX:Int;
@@ -34,7 +34,7 @@ class Player extends FlxSprite
 		offset.set(10, 20);
 
 		drag.set(RUN_SPEED * 10, RUN_SPEED * 10);
-		maxVelocity.set(RUN_SPEED, 3 * RUN_SPEED);
+		maxVelocity.set(RUN_SPEED, 6 * RUN_SPEED);
 
 		resetToLevelStart();
 	}
