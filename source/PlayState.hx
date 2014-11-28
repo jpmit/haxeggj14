@@ -107,7 +107,7 @@ class PlayState extends FlxState
 		FlxG.cameras.flash(0xffDB3624, 0.35);
 		FlxG.sound.play("assets/sounds/death.ogg");
 
-	    _gibs.at(_player);
+	        _gibs.at(_player);
 		_gibs.start(true, 2.80);
 
 		Reg.nDeaths += 1;
